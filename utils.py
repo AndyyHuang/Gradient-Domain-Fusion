@@ -14,13 +14,15 @@ def load_image(path, rgb=True):
 def load_mask(path):
     return ((np.array(Image.open(path).convert('L')) / 255.0) > 0.5).astype(float)[:, :, None]
 
-def show_image(np_im, rgb=True):
+def show_image(np_im, rgb=True, save_path=None):
     np_im = np_im * 255.0
     if rgb:
         pil_im = Image.fromarray(np_im.astype('uint8'), 'RGB')
     else:
         pil_im = Image.fromarray(np_im.astype('uint8'), 'L')
 
+    if save_path != None:
+        pil_im.save(save_path)
     pil_im.show()
     return
 
