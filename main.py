@@ -15,10 +15,10 @@ source_im = load_image("source/spiral_galaxy.jpg")
 target_im = load_image("target/nightsky.jpg")
 mask_im = load_mask("masks/galaxy_mask.jpg")
 
-new_im, coords_row, coords_col = apply_mask(source_im, target_im, mask_im)
+unblended_im, coords_row, coords_col = apply_mask(source_im, target_im, mask_im)
 coords = np.hstack([coords_row[:, None], coords_col[:, None]])
 
-show_image(new_im, save_path='output/unblended_galaxy.jpg')
+show_image(unblended_im, save_path='output/unblended_galaxy.jpg')
 
 r, g, b = blend(source_im, target_im, coords, mask_im, 0), blend(source_im, target_im, coords, mask_im, 1), blend(source_im, target_im, coords, mask_im, 2)
 recon_source = np.dstack([r, g, b]).clip(0, 1)

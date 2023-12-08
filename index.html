@@ -1,16 +1,146 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <body>
     <h1>Final Project: Gradient Domain Fusion</h1>
     <p>In this project, I implemented Gradient Domain Fusion or in other words, Poisson Blending.</p>
+    <b>Note: Please zoom out of the webpage to ensure you see all results/labels.</b>
     <article>
         <header>
             <h2>Implementation Details</h2>
             <p> This project boils down to setting up the least squares equation and throwing it into a solver to get the blended result.
                 The source image is defined as the image whose content is applied to the target image.
-                The objectives that need to be minimized are the x and y gradients of the blended image subtracted with their respective gradients in the source image.
-                
+                The objectives that need to be minimized are the x and y gradients of each pixel the final image subtracted with their respective gradients in the source image.
+                This was implemented by setting up the matrix Ax = b, where A is a sparse matrix of -1 and 1's where each row represents one equation/constraint. 
+                Consequently, each row in b correspondings to each row in A, where entries in b are the corresponding gradients of the source image.
+                The each unknown in the vector x corresponded to a pixel in the blended source image we are solving for.
+                If a neighboring point was in the target image, I simply added the target pixel value to the vector b and kept the corresponding entry in A as 0.
+                Using a dense solver like Numpy.linalg.lstsq proved to be incredibly slow and expensive memorywise. So, I used a sparse solver like scipy.sparse.linalg.lsqr to increase efficiency.
             </p>
+
+            <h2>Part 2.1 Toy Problem</h2>
+            <p>In this part, I reconstructed a greyscale image my minimizing the gradients between the solved image and the entire source image. 
+                This produced a new, but identical image from the least squares algorithm.
+                The reconstructed image is a bit blurrier, however still captures the subjects in the image quite well.</p>
+
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="source/toy_problem.jpg" alt="First Image">
+                    <div class="caption">Original Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="output/recon_toy.jpg" alt="Second Image">
+                    <div class="caption">Reconstructed Image</div>
+                </div>
+            </div>
+
+            <h2>Part 2.2 Poisson Blending</h2>
+            <p>In this part, I implemented Poisson Blending. 
+                I reconstructed each channel separately, then combined them together to form an image. 
+                I setup the least squares solver such that it solves for pixel values in the portion of the source image that is getting blended into the target image. 
+                After solving, I pasted the values into the corresponding location in the target image. Below are my results.
+            </p>
+
+            <p>As you can see below, this was one of my fails. I tried blending in the moon from minecraft into a starry sky, however poisson blending was not able to replicate the texture of a starry sky.</p>
+            
+                <div class="image-container">
+                    <div class="image-box">
+                        <img src="source/moon.jpg" alt="First Image">
+                        <div class="caption">Source Image</div>
+                    </div>
+    
+                    <div class="image-box">
+                        <img src="target/nightsky.jpg" alt="Second Image">
+                        <div class="caption">Target Image</div>
+                    </div>
+
+                    <div class="image-box">
+                        <img src="output/unblended_bad_moon.jpg" alt="Second Image">
+                        <div class="caption">Unblended Image</div>
+                    </div>
+
+                    <div class="image-box">
+                        <img src="output/blended_bad_moon.jpg" alt="Second Image">
+                        <div class="caption">Blended Image</div>
+                    </div>
+                </div>
+
+            <p>Thus, the source image and target image should have similar textures for visually pleasing blends. Following this principle, I created the blends below.</p>
+
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="source/moon.jpg" alt="First Image">
+                    <div class="caption">Source Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="target/night.jpg" alt="Second Image">
+                    <div class="caption">Target Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="output/unblended_good_moon.jpg" alt="Second Image">
+                    <div class="caption">Unblended Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="output/blended_good_moon.jpg" alt="Second Image">
+                    <div class="caption">Blended Image</div>
+                </div>
+            </div>
+
+            <div class="image-container">
+                <div class="image-box">
+                    <img src="source/spiral_galaxy.jpg" alt="First Image">
+                    <div class="caption">Source Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="target/nightsky.jpg" alt="Second Image">
+                    <div class="caption">Target Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="output/unblended_galaxy.jpg" alt="Second Image">
+                    <div class="caption">Unblended Image</div>
+                </div>
+
+                <div class="image-box">
+                    <img src="output/blended_galaxy.jpg" alt="Second Image">
+                    <div class="caption">Blended Image</div>
+                </div>
+            </div>
+
         </header>
     </article>
 </body>
+
+<style>
+    .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .image-box {
+        text-align: center;
+        margin: 10px 5px;
+    }
+    .image-box img {
+        width: auto;
+        height: 300px;
+    }
+    .graph-box img {
+        width: 600px;
+        height: auto;
+    }
+    .caption {
+        margin-top: 5px;
+    }
+    .symbol {
+        font-size: 30px;
+        margin: 0 15px;
+        line-height: 400px;
+        vertical-align: middle;
+        font-weight: bold;
+    }
+</style>

@@ -53,7 +53,7 @@ def reconstruct_image(src_im, channel=None):
             A[eq, im2var[y, x]] = -1
 
             # Source x gradient
-            if channel != None:
+            if channel == None:
                 b[eq] = src_im[y, x + 1] - src_im[y, x]
             else:
                 b[eq] = src_im[y, x + 1][channel] - src_im[y, x][channel]
@@ -66,7 +66,7 @@ def reconstruct_image(src_im, channel=None):
             A[eq, im2var[y, x]] = -1
 
             # Source y gradient
-            if channel != None:
+            if channel == None:
                 b[eq] = src_im[y + 1, x] - src_im[y, x]
             else:
                 b[eq] = src_im[y + 1, x][channel] - src_im[y, x][channel]
@@ -85,7 +85,7 @@ def reconstruct_image(src_im, channel=None):
     sol = lsqr(A, b)[0]
 
     # Reshape the solution to the image shape
-    return sol
+    return sol.reshape(rows, cols)
 
 def blend(source_im, target_im, coords, mask, channel):
     rows, cols = target_im.shape[0], target_im.shape[1]
